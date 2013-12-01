@@ -73,7 +73,12 @@ class SimpleClient(BaseClient):
         for bindstr in self.connect_bind:
             self.socket.connect(bindstr)
         self.socket.setsockopt(zmq.LINGER, 0)
-        self.socket.setsockopt(zmq.HWM, self.hwm)
+        if hasattr(zmq, 'HWM'): # ZeroMQ < 3
+            self.socket.setsockopt(zmq.HWM, self.hwm)
+        else:
+            self.socket.setsockopt(zmq.SNDHWM, self.hwm)
+            self.socket.setsockopt(zmq.RCVHWM, self.hwm)
+
         self.set_connected(True)
 
     def connect(self):
@@ -106,7 +111,11 @@ class HandshakingClient(BaseClient):
         self.socket = self.context.socket(zmq.PUB)
         self.socket.connect(self.connect_bind)
         self.socket.setsockopt(zmq.LINGER, 0)
-        self.socket.setsockopt(zmq.HWM, self.hwm)
+        if hasattr(zmq, 'HWM'): # ZeroMQ < 3
+            self.socket.setsockopt(zmq.HWM, self.hwm)
+        else:
+            self.socket.setsockopt(zmq.SNDHWM, self.hwm)
+            self.socket.setsockopt(zmq.RCVHWM, self.hwm)
 
     def connect(self):
         """
